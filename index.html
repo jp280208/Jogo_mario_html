@@ -1,22 +1,39 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
- <meta charset="UTF-8">
-  <link rel="stylesheet" href="mario.css">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="https://i.pinimg.com/564x/7a/72/93/7a72937fa7e75a4719d53c30979ab3db.jpg">
-  <title> MEU JOGO DO MARIO</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="mario.css">
+    <link rel="icon" href="https://1000logos.net/wp-content/uploads/2021/05/Super-Mario-logo.png">
+    <title>SUPER MARIO </title>
 </head>
 <body>
    <div class="game">
-    <img class="mario" src="https://phoneky.co.uk/thumbs/screensavers/down/games/supermario_h4f5jmkx.gif" alt="mario">
-    <img class="pipe" src="https://github.com/LeehXD/MINI-GAME-MARIO/blob/main/MARIO/img/pipe.png?raw=true" alt="cano">
-    <img class="clouds" src="https://github.com/LeehXD/MINI-GAME-MARIO/blob/main/MARIO/img/clouds.png?raw=true" alt="nuvem">
-    <button class="start" onclick="startGame()">Iniciar</button>
+        <div class="header">
+            <span class="score-title">SCORE: <span class="score-value">0</span></span>
+            <span class="time-title">TEMPO: <span class="time-value">0</span>s</span>
+        </div>
+
+        <img class="clouds" src="https://github.com/LeehXD/MINI-GAME-MARIO/blob/main/MARIO/img/clouds.png?raw=true" alt="nuvem">
+        
+        <img class="bullet" src="https://i.gifer.com/origin/a8/a88572578d16f7b00971c949aecc5812_w200.gif" alt="bullet bill">
+        <img class="goomba" src="https://giffiles.alphacoders.com/157/15765.gif" alt="goomba">
+
+        <img class="mario" src="https://phoneky.co.uk/thumbs/screensavers/down/games/supermario_h4f5jmkx.gif" alt="mario">
+        <img class="pipe" src="https://github.com/LeehXD/MINI-GAME-MARIO/blob/main/MARIO/img/pipe.png?raw=true" alt="cano">
+        
+        <div class="ground"></div>
+
+        <button class="start" onclick="startGame()">PRESS ENTER</button>
    </div>
 
-    <div class="game-over"><h1>Game Over :(</h1><button onclick="restartGame()">Reiniciar</button></div>
+    <div class="game-over">
+        <h1>GAME OVER</h1>
+        <p>Score: <span class="final-score">0</span> | Tempo: <span class="final-time">0</span>s</p>
+        <button onclick="restartGame()">PRESS ENTER</button>
+    </div>
+
+    <script src="mario.js"></script>
 </body>
-<script src="mario.js"></script>
 </html>
