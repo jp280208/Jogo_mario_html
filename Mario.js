@@ -1,104 +1,196 @@
-const mario = document.querySelector('.mario')
-const pipe = document.querySelector('.pipe')
+const mario = document.querySelector('.mario');
+const pipe = document.querySelector('.pipe');
+const bullet = document.querySelector('.bullet');
+const goomba = document.querySelector('.goomba');
+const startBtn = document.querySelector('.start');
+const gameOverScreen = document.querySelector('.game-over');
+const scoreElement = document.querySelector('.score-value');
+const finalScoreElement = document.querySelector('.final-score');
+const timeElement = document.querySelector('.time-value');
+const finalTimeElement = document.querySelector('.final-time');
 
-const start = document.querySelector('.start')
-const gameOver = document.querySelector('.game-over')
+const audioStart = new Audio('https://github.com/LeehXD/MINI-GAME-MARIO/raw/refs/heads/main/MARIO/soung/audio_theme.mp3');
+const audioGameOver = new Audio('https://github.com/LeehXD/MINI-GAME-MARIO/raw/refs/heads/main/MARIO/soung/audio_gameover.mp3');
 
-// audio
-audioStart = new Audio('https://github.com/LeehXD/MINI-GAME-MARIO/raw/refs/heads/main/MARIO/soung/audio_theme.mp3')
-audioGameOver = new Audio('https://github.com/LeehXD/MINI-GAME-MARIO/raw/refs/heads/main/MARIO/soung/audio_gameover.mp3')
-
+let gameLoop;
+let scoreInterval;
+let timerInterval;
+let score = 0;
+let time = 0;
+let isGameRunning = false;
+let goombaTimeout;
 
 const startGame = () => {
-  pipe.classList.add('pipe-animation')
-  start.style.display = 'none'
+    isGameRunning = true;
+    startBtn.style.display = 'none';
+    
+    pipe.style.animationDuration = '4s'; 
+    goomba.style.animationDuration = '6s';
+    bullet.style.animationDuration = '4s';
+    
+    pipe.classList.add('pipe-animation');
+    
+    clearTimeout(goombaTimeout);
+    goomba.classList.remove('goomba-animation');
+    goombaTimeout = setTimeout(() => {
+        if(isGameRunning) {
+            goomba.classList.add('goomba-animation');
+        }
+    }, 2000);
 
-  // audio
-  audioStart.play()
+    mario.src = 'https://phoneky.co.uk/thumbs/screensavers/down/games/supermario_h4f5jmkx.gif';
+    mario.style.width = '150px';
+    mario.style.bottom = '30px';
+    mario.style.marginLeft = '0';
+    mario.classList.remove('jump');
+
+    audioStart.currentTime = 0;
+    audioStart.play();
+    audioStart.loop = true;
+
+    score = 0;
+    time = 0;
+    updateScore();
+    updateTime();
+
+    scoreInterval = setInterval(() => {
+        score++;
+        updateScore();
+        checkDifficulty();
+    }, 100);
+
+    timerInterval = setInterval(() => {
+        time++;
+        updateTime();
+    }, 1000);
+
+    gameLoop = setInterval(loop, 10);
 }
 
-const restartGame = () => {
-  gameOver.style.display = 'none'
-  pipe.style.left = ''
-  pipe.style.right = '0'
-  mario.src = 'https://phoneky.co.uk/thumbs/screensavers/down/games/supermario_h4f5jmkx.gif'
-  mario.style.width = '150px'
-  mario.style.bottom = '0'
+const updateScore = () => {
+    scoreElement.innerText = score;
+}
 
-  start.style.display = 'none'
+const updateTime = () => {
+    timeElement.innerText = time;
+}
 
-  audioGameOver.pause()
-  audioGameOver.currentTime = 0;
+const checkDifficulty = () => {
+    if (score === 50) {
+        bullet.classList.add('bullet-animation');
+    }
 
-  audioStart.play()
-  audioStart.currentTime = 0;
-
+    if (score > 0 && score % 100 === 0) {
+        const pipeDuration = parseFloat(getComputedStyle(pipe).animationDuration);
+        const goombaDuration = parseFloat(getComputedStyle(goomba).animationDuration);
+        
+        if (pipeDuration > 0.7) {
+            pipe.style.animationDuration = `${pipeDuration - 0.2}s`;
+        }
+        if (goombaDuration > 0.7) {
+            goomba.style.animationDuration = `${goombaDuration - 0.2}s`;
+        }
+    }
 }
 
 const jump = () => {
-  mario.classList.add('jump')
+    if (!isGameRunning) return;
+    
+    if (!mario.classList.contains('jump')) {
+        mario.classList.add('jump');
 
-  setTimeout(() => {
-    mario.classList.remove('jump')
-  }, 800)
+        setTimeout(() => {
+            mario.classList.remove('jump');
+        }, 500);
+    }
 }
 
 const loop = () => {
-  setInterval(() => {
-    const pipePosition = pipe.offsetLeft
-    const marioPosition = window
-      .getComputedStyle(mario)
-      .bottom.replace('px', ' ')
-
-    if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80) {
-      pipe.classList.remove('.pipe-animation')
-      pipe.style.left = `${pipePosition}px`
-
-      mario.classList.remove('.jump')
-      mario.style.bottom = `${marioPosition}px`
-
-      mario.src = 'https://github.com/LeehXD/MINI-GAME-MARIO/blob/main/MARIO/img/game-over.png?raw=true'
-      mario.style.width = '80px'
-      mario.style.marginLeft = '50px'
-      
-      
-      function stopAudioStart() {
-        audioStart.pause()
-      }
-      stopAudioStart()
-      
-      audioGameOver.play()
-      
-      function stopAudio() {
-        audioGameOver.pause()
-      }
-      setTimeout(stopAudio, 7000)
-      
-      gameOver.style.display = 'flex'
-      
-      clearInterval(loop)
+    const pipePosition = pipe.offsetLeft;
+    const bulletPosition = bullet.offsetLeft;
+    const goombaPosition = goomba.offsetLeft;
+    const marioPosition = parseFloat(window.getComputedStyle(mario).bottom.replace('px', ''));
+    
+    if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 110) {
+        handleGameOver(pipePosition, pipe);
     }
-  }, 10)
+
+    if (goombaPosition <= 100 && goombaPosition > 0 && marioPosition < 110) {
+        handleGameOver(goombaPosition, goomba);
+    }
+
+    if (bullet.style.display !== 'none' && bulletPosition <= 120 && bulletPosition > 0 && marioPosition > 90 && marioPosition < 260) {
+        handleGameOver(bulletPosition, bullet);
+    }
 }
 
-loop()
+const handleGameOver = (obstaclePosition, obstacleElement) => {
+    isGameRunning = false;
+    clearTimeout(goombaTimeout);
+    
+    obstacleElement.style.animation = 'none';
+    obstacleElement.style.left = `${obstaclePosition}px`;
+    
+    mario.style.animation = 'none';
+    mario.style.bottom = `${parseFloat(window.getComputedStyle(mario).bottom)}px`;
+    mario.src = 'https://github.com/LeehXD/MINI-GAME-MARIO/blob/main/MARIO/img/game-over.png?raw=true';
+    mario.style.width = '75px';
+    mario.style.marginLeft = '50px';
 
-document.addEventListener('keypress', e => {
-  const tecla = e.key
-  if (tecla === ' ') {
-    jump()
-  }
-})
+    audioStart.pause();
+    audioGameOver.play();
 
-document.addEventListener('touchstart', e => {
-  if (e.touches.length) {
-    jump() 
-  }
-})
+    clearInterval(gameLoop);
+    clearInterval(scoreInterval);
+    clearInterval(timerInterval);
 
-document.addEventListener('keypress', e => {
-  const tecla = e.key
-  if (tecla === 'Enter') {
-    startGame()
-  }
-})
+    finalScoreElement.innerText = score;
+    finalTimeElement.innerText = time;
+    
+    setTimeout(() => {
+        gameOverScreen.style.display = 'flex';
+    }, 500);
+}
+
+const restartGame = () => {
+    gameOverScreen.style.display = 'none';
+    
+    pipe.style.animation = '';
+    pipe.style.left = '';
+    pipe.classList.remove('pipe-animation');
+
+    goomba.style.animation = '';
+    goomba.style.left = '';
+    goomba.classList.remove('goomba-animation');
+
+    bullet.style.animation = '';
+    bullet.style.left = '';
+    bullet.classList.remove('bullet-animation');
+
+    mario.classList.remove('jump');
+    mario.style.animation = '';
+    
+    startGame();
+}
+
+document.addEventListener('keydown', (e) => {
+    if ((e.key === ' ' || e.key === 'ArrowUp') && isGameRunning) {
+        e.preventDefault();
+        jump();
+    }
+    
+    if (e.key === 'Enter') {
+        if (!isGameRunning && gameOverScreen.style.display !== 'flex') {
+            startGame();
+        } else if (gameOverScreen.style.display === 'flex') {
+            restartGame();
+        }
+    }
+});
+
+document.addEventListener('touchstart', (e) => {
+    if (isGameRunning) {
+        if(e.cancelable) e.preventDefault();
+        jump();
+    }
+}, { passive: false });
